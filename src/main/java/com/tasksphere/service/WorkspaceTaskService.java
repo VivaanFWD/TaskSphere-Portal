@@ -85,6 +85,22 @@ public class WorkspaceTaskService {
     }
 
     @Transactional
+    public int assignTaskToAll(
+        String facultyUsername, String title, String description,
+        TaskCategory category, TaskPriority priority, LocalDate dueDate
+    ) {
+        AcademicProfile faculty = activeProfile(facultyUsername, "FACULTY");
+        List<AcademicProfile> students = activeStudents();
+        if (students.isEmpty()) {
+            throw new IllegalArgumentException("No active student accounts available to assign.");
+        }
+        for (AcademicProfile student : students) {
+            saveNewTask(student, faculty, title, description, category, priority, dueDate);
+        }
+        return students.size();
+    }
+
+    @Transactional
     public void updatePersonalTask(
         String username, Long taskId, String title, String description,
         TaskCategory category, TaskPriority priority, LocalDate dueDate, TaskStatus status
@@ -95,7 +111,8 @@ public class WorkspaceTaskService {
             throw new AccessDeniedException("You can only edit your own personal tasks.");
         }
         applyDetails(task, title, description, category, priority, dueDate);
-        task.setStatus(status);
+        task.setStatus(status == null ? TaskStatus.PENDING : status);
+        taskRepository.save(task);
     }
 
     @Transactional
@@ -112,6 +129,7 @@ public class WorkspaceTaskService {
             throw new IllegalStateException("Submitted tasks are locked and cannot be edited.");
         }
         applyDetails(task, title, description, category, priority, dueDate);
+        taskRepository.save(task);
     }
 
     @Transactional
@@ -127,10 +145,12 @@ public class WorkspaceTaskService {
         }
         if (personalOwner || facultyOwner) {
             task.setStatus(status);
+            taskRepository.save(task);
             return;
         }
         if (assignedStudent && status != TaskStatus.COMPLETED) {
             task.setStatus(status);
+            taskRepository.save(task);
             return;
         }
         throw new AccessDeniedException(assignedStudent
@@ -151,6 +171,7 @@ public class WorkspaceTaskService {
         task.setSubmissionNote(optionalText(submissionNote, 2000));
         task.setSubmittedAt(LocalDateTime.now());
         task.setStatus(TaskStatus.COMPLETED);
+        taskRepository.save(task);
     }
 
     @Transactional

@@ -24,7 +24,7 @@
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
             <div>
                 <h1 class="h3 fw-bold mb-1">Welcome, <span th:text="${user}">Faculty</span> 👋</h1>
-                <p class="text-muted mb-0">Assign tasks to your students and track their progress.</p>
+                <p class="text-muted mb-0">Assign tasks to individual students or the whole class and track their progress.</p>
             </div>
             <button type="button" class="btn btn-ts-primary px-4" data-bs-toggle="modal" data-bs-target="#assignTaskModal"
                     th:disabled="${#lists.isEmpty(students)}">
@@ -102,6 +102,7 @@
                 </div>
                 <div class="d-flex align-items-start gap-2">
                     <form th:if="${!task.submitted}" th:action="@{/tasks/status/{id}(id=${task.id})}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <select name="status" class="form-select form-select-sm" aria-label="Update task status" onchange="this.form.submit()">
                             <option th:each="status : ${statuses}" th:value="${status}" th:text="${status}" th:selected="${status == task.status}"></option>
                         </select>
@@ -111,6 +112,7 @@
                         <i class="bi bi-pencil"></i><span class="visually-hidden">Edit task</span>
                     </button>
                     <form th:action="@{/tasks/delete/{id}(id=${task.id})}" method="post" onsubmit="return confirm('Delete this assignment? This cannot be undone.');">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i><span class="visually-hidden">Delete assignment</span></button>
                     </form>
                 </div>
@@ -125,13 +127,18 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form th:action="@{/tasks/assign}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <div class="modal-header"><h2 class="modal-title h5 fw-bold">Assign a task</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
                 <div class="modal-body">
-                    <div class="mb-3"><label class="form-label" for="assignStudent">Assign to</label>
+                    <div class="mb-3"><label class="form-label fw-semibold" for="assignStudent">Assign to</label>
                         <select id="assignStudent" name="studentId" class="form-select" required>
-                            <option value="" disabled selected>Choose an active student</option>
-                            <option th:each="student : ${students}" th:value="${student.id}" th:text="${student.firstName + ' ' + student.lastName + ' (' + student.username + ')'}"></option>
+                            <option value="" disabled selected>Choose a student or whole class</option>
+                            <option value="ALL" class="fw-bold text-primary">👥 Whole Class (All Active Students)</option>
+                            <optgroup label="Individual Students">
+                                <option th:each="student : ${students}" th:value="${student.id}" th:text="${student.firstName + ' ' + student.lastName + ' (' + student.username + ')'}"></option>
+                            </optgroup>
                         </select>
+                        <div class="form-text">Choose a specific student or "Whole Class" to assign to everyone at once.</div>
                     </div>
                     <div class="mb-3"><label class="form-label" for="assignTitle">Title</label><input id="assignTitle" name="title" class="form-control" maxlength="150" required></div>
                     <div class="mb-3"><label class="form-label" for="assignDescription">Description</label><textarea id="assignDescription" name="description" class="form-control" rows="2" maxlength="1000"></textarea></div>
@@ -150,7 +157,8 @@
 <div class="modal fade" id="editAssignedTaskModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <form id="editAssignedTaskForm" method="post">
+            <form id="editAssignedTaskForm" method="post" th:action="@{/tasks/add}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <div class="modal-header"><h2 class="modal-title h5 fw-bold">Edit assigned task</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
                 <div class="modal-body">
                     <div class="mb-3"><label class="form-label" for="facultyEditTitle">Title</label><input id="facultyEditTitle" name="title" class="form-control" maxlength="150" required></div>

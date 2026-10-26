@@ -112,7 +112,7 @@ public class WorkspaceTaskController {
             taskService.createPersonalTask(authentication.getName(), title, description, category,
                 priority, parseDate(dueDate));
             redirect.addFlashAttribute("success", "Task added to your list.");
-        } catch (IllegalArgumentException | AccessDeniedException ex) {
+        } catch (Exception ex) {
             redirect.addFlashAttribute("error", ex.getMessage());
         }
         return "redirect:/dashboard";
@@ -121,7 +121,7 @@ public class WorkspaceTaskController {
     @PostMapping("/tasks/assign")
     public String assignTask(
         org.springframework.security.core.Authentication authentication,
-        @RequestParam UUID studentId,
+        @RequestParam String studentId,
         @RequestParam String title,
         @RequestParam(required = false) String description,
         @RequestParam(required = false) TaskCategory category,
@@ -130,10 +130,17 @@ public class WorkspaceTaskController {
         RedirectAttributes redirect
     ) {
         try {
-            taskService.assignTask(authentication.getName(), studentId, title, description,
-                category, priority, parseDate(dueDate));
-            redirect.addFlashAttribute("success", "Task assigned to the selected student.");
-        } catch (IllegalArgumentException | AccessDeniedException ex) {
+            if ("ALL".equalsIgnoreCase(studentId.trim())) {
+                int assignedCount = taskService.assignTaskToAll(authentication.getName(), title, description,
+                    category, priority, parseDate(dueDate));
+                redirect.addFlashAttribute("success", "Task assigned to the whole class (" + assignedCount + " students).");
+            } else {
+                UUID parsedStudentId = UUID.fromString(studentId.trim());
+                taskService.assignTask(authentication.getName(), parsedStudentId, title, description,
+                    category, priority, parseDate(dueDate));
+                redirect.addFlashAttribute("success", "Task assigned to the selected student.");
+            }
+        } catch (Exception ex) {
             redirect.addFlashAttribute("error", ex.getMessage());
         }
         return "redirect:/dashboard";
@@ -155,7 +162,7 @@ public class WorkspaceTaskController {
             taskService.updatePersonalTask(authentication.getName(), id, title, description,
                 category, priority, parseDate(dueDate), status);
             redirect.addFlashAttribute("success", "Your task was updated.");
-        } catch (IllegalArgumentException | AccessDeniedException ex) {
+        } catch (Exception ex) {
             redirect.addFlashAttribute("error", ex.getMessage());
         }
         return "redirect:/dashboard";
@@ -176,7 +183,7 @@ public class WorkspaceTaskController {
             taskService.updateAssignedTask(authentication.getName(), id, title, description,
                 category, priority, parseDate(dueDate));
             redirect.addFlashAttribute("success", "Assigned task updated.");
-        } catch (IllegalArgumentException | IllegalStateException | AccessDeniedException ex) {
+        } catch (Exception ex) {
             redirect.addFlashAttribute("error", ex.getMessage());
         }
         return "redirect:/dashboard";
@@ -192,7 +199,7 @@ public class WorkspaceTaskController {
         try {
             taskService.updateStatus(authentication.getName(), id, status);
             redirect.addFlashAttribute("success", "Task status updated.");
-        } catch (IllegalArgumentException | IllegalStateException | AccessDeniedException ex) {
+        } catch (Exception ex) {
             redirect.addFlashAttribute("error", ex.getMessage());
         }
         return "redirect:/dashboard";
@@ -208,7 +215,7 @@ public class WorkspaceTaskController {
         try {
             taskService.submitTask(authentication.getName(), id, submissionNote);
             redirect.addFlashAttribute("success", "Task submitted successfully.");
-        } catch (IllegalArgumentException | IllegalStateException | AccessDeniedException ex) {
+        } catch (Exception ex) {
             redirect.addFlashAttribute("error", ex.getMessage());
         }
         return "redirect:/dashboard";
@@ -223,7 +230,7 @@ public class WorkspaceTaskController {
         try {
             taskService.deleteTask(authentication.getName(), id);
             redirect.addFlashAttribute("success", "Task deleted.");
-        } catch (IllegalArgumentException | AccessDeniedException ex) {
+        } catch (Exception ex) {
             redirect.addFlashAttribute("error", ex.getMessage());
         }
         return "redirect:/dashboard";

@@ -14,7 +14,7 @@
     <div class="container">
         <div class="mb-4">
             <h1 class="h3 fw-bold mb-1" th:text="${studentView} ? 'Your Task Analytics' : 'Student Task Analytics'">Task Analytics</h1>
-            <p class="text-muted mb-0" th:text="${studentView} ? 'Your progress, in plain numbers — no charts, just what matters.' : 'How students are progressing on the tasks you assign.'"></p>
+            <p class="text-muted mb-0" th:text="${studentView} ? 'Your progress, in plain numbers — track completion and pacing.' : 'Overview of student completions and status across assigned tasks.'"></p>
         </div>
 
         <div th:if="${data.totalTasks == 0}" class="text-center text-muted py-5 ts-chart-card">
@@ -24,9 +24,10 @@
         </div>
 
         <div th:if="${data.totalTasks > 0}">
-            <section class="ts-chart-card mb-4">
+            <!-- Student ONLY: Overall Progress Bar -->
+            <section class="ts-chart-card mb-4" th:if="${studentView}">
                 <div class="d-flex justify-content-between align-items-baseline flex-wrap gap-2 mb-2">
-                    <h2 class="h6 fw-bold mb-0" th:text="${studentView} ? 'Overall Progress' : 'Overall Completion'">Overall Progress</h2>
+                    <h2 class="h6 fw-bold mb-0">Overall Progress</h2>
                     <span class="text-muted small">
                         <strong th:text="${data.completedTasks}">0</strong> of
                         <strong th:text="${data.totalTasks}">0</strong> tasks completed
@@ -40,6 +41,37 @@
                 <p class="mt-2 mb-0 fw-semibold" th:text="${data.overallRate} + '% complete'">0% complete</p>
             </section>
 
+            <!-- Faculty ONLY: Clean Statistical Overview without progress bar -->
+            <section class="ts-chart-card mb-4" th:if="${!studentView}">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                    <h2 class="h6 fw-bold mb-0"><i class="bi bi-bar-chart-line me-1"></i>Class Assignment Summary</h2>
+                    <span class="badge bg-primary px-3 py-2 fs-6">
+                        Overall Completion: <strong th:text="${data.overallRate}">0</strong>%
+                    </span>
+                </div>
+                <div class="row g-3 text-center">
+                    <div class="col-sm-4">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <div class="display-6 fw-bold text-primary mb-1" th:text="${data.totalTasks}">0</div>
+                            <div class="small text-muted text-uppercase fw-semibold">Total Assigned</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <div class="display-6 fw-bold text-success mb-1" th:text="${data.completedTasks}">0</div>
+                            <div class="small text-muted text-uppercase fw-semibold">Completed / Submitted</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <div class="display-6 fw-bold text-warning mb-1" th:text="${data.totalTasks - data.completedTasks}">0</div>
+                            <div class="small text-muted text-uppercase fw-semibold">Pending Completion</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Student Breakdown with progress bars -->
             <div class="row g-3 mb-4" th:if="${studentView}">
                 <div class="col-md-6">
                     <section class="ts-chart-card">
@@ -68,6 +100,7 @@
                 </div>
             </div>
 
+            <!-- Student Pacing stats -->
             <div class="row g-3 mb-4" th:if="${studentView}">
                 <div class="col-md-6">
                     <section class="ts-chart-card h-100">
@@ -94,23 +127,40 @@
                 </div>
             </div>
 
-            <section class="ts-chart-card mb-4" th:if="${!#lists.isEmpty(data.perStudent)}">
-                <h2 class="h6 fw-bold mb-3">Progress by Student</h2>
-                <div th:each="row : ${data.perStudent}" class="mb-3">
-                    <div class="d-flex justify-content-between small mb-1">
-                        <span class="fw-semibold" th:text="${row.label}">Student</span>
-                        <span class="text-muted" th:text="${row.completed} + ' of ' + ${row.total} + ' — ' + ${row.rate} + '%'"></span>
-                    </div>
-                    <div class="progress" style="height: 8px; border-radius: 20px;">
-                        <div class="progress-bar" role="progressbar" th:attr="aria-valuenow=${row.rate}"
-                             aria-valuemin="0" aria-valuemax="100"
-                             th:style="'width:' + ${row.rate} + '%;background-color:#06b6d4;border-radius:20px;'"></div>
-                    </div>
+            <!-- Faculty Student Completion Breakdown: Clean Table (NO progress bar) -->
+            <section class="ts-chart-card mb-4" th:if="${!studentView and !#lists.isEmpty(data.perStudent)}">
+                <h2 class="h6 fw-bold mb-3"><i class="bi bi-people me-1"></i>Student Submission Status</h2>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Student</th>
+                                <th>Completed</th>
+                                <th>Total Assigned</th>
+                                <th>Completion Rate</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="row : ${data.perStudent}">
+                                <td class="fw-semibold" th:text="${row.label}">Student</td>
+                                <td class="text-success fw-bold" th:text="${row.completed}">0</td>
+                                <td th:text="${row.total}">0</td>
+                                <td th:text="${row.rate + '%'}">0%</td>
+                                <td>
+                                    <span class="badge" th:classappend="${row.rate == 100 ? 'bg-success' : (row.rate > 0 ? 'bg-primary' : 'bg-secondary')}"
+                                          th:text="${row.rate == 100 ? 'All Complete' : (row.rate > 0 ? 'In Progress' : 'Pending')}">
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </section>
 
+            <!-- Priority breakdown -->
             <div class="row g-3 mb-4">
-                <div class="col-md-6">
+                <div class="col-md-6" th:if="${studentView}">
                     <section class="ts-chart-card h-100">
                         <h2 class="h6 fw-bold mb-3">Progress by Priority</h2>
                         <div th:each="row : ${data.priorityBreakdown}" class="mb-3" th:if="${row.total > 0}">
@@ -125,6 +175,33 @@
                             </div>
                         </div>
                         <p class="small text-muted mb-0" th:if="${#lists.isEmpty(data.priorityBreakdown)}">No priority data.</p>
+                    </section>
+                </div>
+                <div class="col-md-6" th:if="${!studentView}">
+                    <section class="ts-chart-card h-100">
+                        <h2 class="h6 fw-bold mb-3"><i class="bi bi-flag me-1"></i>Tasks by Priority</h2>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Priority</th>
+                                        <th>Submitted</th>
+                                        <th>Total</th>
+                                        <th>Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="row : ${data.priorityBreakdown}">
+                                        <td class="fw-semibold" th:text="${row.label}"></td>
+                                        <td class="text-success" th:text="${row.completed}">0</td>
+                                        <td th:text="${row.total}">0</td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border" th:text="${row.rate + '%'}"></span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </section>
                 </div>
                 <div class="col-md-6" th:if="${studentView}">

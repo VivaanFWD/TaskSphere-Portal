@@ -2,6 +2,7 @@ package com.tasksphere.config;
 
 import com.tasksphere.dto.AuthTokenResponse;
 import com.tasksphere.dto.UserIdentityResponse;
+import com.tasksphere.service.AcademicProfileService;
 import com.tasksphere.service.AuthClientService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,9 +23,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class SessionAuthenticationFilter extends OncePerRequestFilter {
     private final AuthClientService authClientService;
+    private final AcademicProfileService academicProfileService;
 
-    public SessionAuthenticationFilter(AuthClientService authClientService) {
+    public SessionAuthenticationFilter(
+        AuthClientService authClientService,
+        AcademicProfileService academicProfileService
+    ) {
         this.authClientService = authClientService;
+        this.academicProfileService = academicProfileService;
     }
 
     @Override
@@ -57,6 +63,12 @@ public class SessionAuthenticationFilter extends OncePerRequestFilter {
                     session.invalidate();
                     response.sendRedirect("/login");
                     return;
+                }
+                // Auto-sync profile into local database
+                try {
+                    academicProfileService.ensureProfile(latest);
+                } catch (Exception ignored) {
+                    // Fail-safe: don't block user session if profile sync hits transient issue
                 }
                 AuthTokenResponse refreshed = new AuthTokenResponse();
                 refreshed.setToken(user.getToken());

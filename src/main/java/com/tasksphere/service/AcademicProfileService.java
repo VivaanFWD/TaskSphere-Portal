@@ -2,9 +2,11 @@ package com.tasksphere.service;
 
 import com.tasksphere.domain.AcademicProfile;
 import com.tasksphere.dto.ProvisionUserResponse;
+import com.tasksphere.dto.UserIdentityResponse;
 import com.tasksphere.repository.AcademicProfileRepository;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,47 @@ public class AcademicProfileService {
         profile.setAccountStatus(identity.status());
         profile.setUpdatedAt(Instant.now());
         academicProfileRepository.save(profile);
+    }
+
+    @Transactional
+    public AcademicProfile ensureProfile(UserIdentityResponse identity) {
+        if (identity == null || identity.username() == null) {
+            return null;
+        }
+        AcademicProfile profile = academicProfileRepository.findByUsername(identity.username())
+            .orElseGet(() -> {
+                AcademicProfile p = new AcademicProfile();
+                p.setAuthUserId(UUID.randomUUID());
+                return p;
+            });
+        profile.setUsername(identity.username());
+        if (identity.firstName() != null && !identity.firstName().isBlank()) {
+            profile.setFirstName(identity.firstName());
+        } else if (profile.getFirstName() == null) {
+            profile.setFirstName(identity.username());
+        }
+        if (identity.lastName() != null && !identity.lastName().isBlank()) {
+            profile.setLastName(identity.lastName());
+        } else if (profile.getLastName() == null) {
+            profile.setLastName("");
+        }
+        if (identity.email() != null && !identity.email().isBlank()) {
+            profile.setEmail(identity.email());
+        } else if (profile.getEmail() == null) {
+            profile.setEmail(identity.username() + "@tasksphere.edu");
+        }
+        if (identity.roles() != null && !identity.roles().isEmpty()) {
+            if (identity.roles().contains("STUDENT")) {
+                profile.setWorkspaceRole("STUDENT");
+            } else if (identity.roles().contains("FACULTY")) {
+                profile.setWorkspaceRole("FACULTY");
+            } else if (identity.roles().contains("ACADEMIC_OFFICE")) {
+                profile.setWorkspaceRole("ACADEMIC_OFFICE");
+            }
+        }
+        profile.setAccountStatus(identity.status() != null ? identity.status() : "ACTIVE");
+        profile.setUpdatedAt(Instant.now());
+        return academicProfileRepository.save(profile);
     }
 
     @Transactional(readOnly = true)

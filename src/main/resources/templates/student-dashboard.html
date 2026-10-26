@@ -98,6 +98,7 @@
                     </div>
                     <div class="d-flex align-items-start gap-2" th:if="${!task.submitted}">
                         <form th:action="@{/tasks/status/{id}(id=${task.id})}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                             <select name="status" class="form-select form-select-sm" aria-label="Update task status" onchange="this.form.submit()">
                                 <option value="PENDING" th:selected="${task.status.name() == 'PENDING'}">Pending</option>
                                 <option value="IN_PROGRESS" th:selected="${task.status.name() == 'IN_PROGRESS'}">In Progress</option>
@@ -140,6 +141,7 @@
                 </div>
                 <div class="d-flex align-items-start gap-2">
                     <form th:action="@{/tasks/status/{id}(id=${task.id})}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <select name="status" class="form-select form-select-sm" aria-label="Update task status" onchange="this.form.submit()">
                             <option value="PENDING" th:selected="${task.status.name() == 'PENDING'}">Pending</option>
                             <option value="IN_PROGRESS" th:selected="${task.status.name() == 'IN_PROGRESS'}">In Progress</option>
@@ -151,6 +153,7 @@
                         <i class="bi bi-pencil"></i><span class="visually-hidden">Edit task</span>
                     </button>
                     <form th:action="@{/tasks/delete/{id}(id=${task.id})}" method="post" onsubmit="return confirm('Delete this task?');">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i><span class="visually-hidden">Delete task</span></button>
                     </form>
                 </div>
@@ -170,6 +173,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form th:action="@{/tasks/add}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <div class="modal-header"><h2 class="modal-title h5 fw-bold">Add a personal task</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
                 <div class="modal-body">
                     <div class="mb-3"><label class="form-label" for="newTitle">Title</label><input id="newTitle" name="title" class="form-control" maxlength="150" required></div>
@@ -189,7 +193,8 @@
 <div class="modal fade" id="editTaskModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <form id="editTaskForm" method="post">
+            <form id="editTaskForm" method="post" th:action="@{/tasks/add}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <div class="modal-header"><h2 class="modal-title h5 fw-bold">Edit personal task</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
                 <div class="modal-body">
                     <div class="mb-3"><label class="form-label" for="editTitle">Title</label><input id="editTitle" name="title" class="form-control" maxlength="150" required></div>
@@ -210,7 +215,8 @@
 <div class="modal fade" id="submitTaskModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <form id="submitTaskForm" method="post">
+            <form id="submitTaskForm" method="post" th:action="@{/tasks/add}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <div class="modal-header"><h2 class="modal-title h5 fw-bold">Submit assigned task</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
                 <div class="modal-body">
                     <p class="text-muted">Submitting <strong id="submitTaskTitle">this task</strong> marks it completed and shares your note with faculty.</p>
