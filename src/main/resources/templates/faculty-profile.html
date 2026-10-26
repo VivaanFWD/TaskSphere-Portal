@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${profile.firstName + ' ' + profile.lastName + ' | Faculty | TaskSphere'}">Faculty | TaskSphere</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" th:href="@{/dashboard}">TaskSphere</a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <a class="btn btn-outline-light btn-sm" th:href="@{/faculty}">Faculty directory</a>
+            <span class="text-white" th:text="${user.username}">User</span>
+            <form method="post" th:action="@{/logout}" class="m-0"><button class="btn btn-outline-light btn-sm">Logout</button></form>
+        </div>
+    </div>
+</nav>
+<main class="container py-4">
+    <a th:href="@{/faculty}" class="btn btn-link px-0">&larr; Faculty directory</a>
+    <div th:if="${message}" class="alert" th:classappend="${failure} ? 'alert-danger' : 'alert-success'" th:text="${message}"></div>
+    <section class="card shadow-sm">
+        <div class="card-header bg-white"><h1 class="h4 mb-0">Faculty information</h1></div>
+        <div class="card-body">
+            <h2 class="h5" th:text="${profile.firstName + ' ' + profile.lastName}">Faculty name</h2>
+            <p class="text-muted" th:text="${profile.username}">Faculty ID</p>
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Designation</dt><dd class="col-sm-9" th:text="${profile.designation != '' ? profile.designation : 'Not provided'}"></dd>
+                <dt class="col-sm-3">Department</dt><dd class="col-sm-9" th:text="${profile.department != '' ? profile.department : 'Not provided'}"></dd>
+                <dt class="col-sm-3">School / Centre</dt><dd class="col-sm-9" th:text="${profile.school != '' ? profile.school : 'Not provided'}"></dd>
+                <dt class="col-sm-3">Email</dt><dd class="col-sm-9"><a th:href="${'mailto:' + profile.email}" th:text="${profile.email}"></a></dd>
+                <dt class="col-sm-3">Office / Cabin</dt><dd class="col-sm-9" th:text="${profile.officeLocation != '' ? profile.officeLocation : 'Not provided'}"></dd>
+            </dl>
+        </div>
+    </section>
+    <section class="card shadow-sm mt-4">
+        <div class="card-header bg-white"><h2 class="h5 mb-0">Open hours</h2></div>
+        <div class="card-body">
+            <p th:if="${profile.openHours == ''}" class="text-muted mb-0">Open hours have not been added yet.</p>
+            <p th:unless="${profile.openHours == ''}" class="mb-0 text-break" style="white-space: pre-line" th:text="${profile.openHours}"></p>
+        </div>
+    </section>
+    <section th:if="${editable}" class="card shadow-sm mt-4">
+        <div class="card-header bg-white"><h2 class="h5 mb-0">Edit your directory information</h2></div>
+        <div class="card-body">
+            <form method="post" th:action="@{/faculty/profile}" class="row g-3">
+                <div class="col-md-6"><label class="form-label" for="designation">Designation</label><input id="designation" class="form-control" name="designation" maxlength="160" th:value="${profile.designation}"></div>
+                <div class="col-md-6"><label class="form-label" for="department">Department</label><input id="department" class="form-control" name="department" maxlength="160" th:value="${profile.department}"></div>
+                <div class="col-md-6"><label class="form-label" for="school">School / Centre</label><input id="school" class="form-control" name="school" maxlength="160" th:value="${profile.school}"></div>
+                <div class="col-md-6"><label class="form-label" for="officeLocation">Office / Cabin</label><input id="officeLocation" class="form-control" name="officeLocation" maxlength="120" th:value="${profile.officeLocation}"></div>
+                <div class="col-12"><label class="form-label" for="openHours">Open hours</label><textarea id="openHours" class="form-control" name="openHours" rows="4" maxlength="2000" placeholder="For example: Monday, 10:00–11:00 AM" th:text="${profile.openHours}"></textarea></div>
+                <div class="col-12"><button class="btn btn-primary">Save profile</button></div>
+            </form>
+        </div>
+    </section>
+</main>
+</body>
+</html>

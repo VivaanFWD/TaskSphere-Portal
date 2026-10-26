@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account recovery | TaskSphere</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="auth-bg">
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-4">
+                <div class="brand-mark mx-auto">TS</div>
+                <h1 class="h3 fw-bold mt-3">Recover your account</h1>
+                <a th:href="@{/login}">Back to sign in</a>
+            </div>
+            <div class="row g-4">
+                <section class="col-md-6">
+                    <div class="card shadow-sm h-100"><div class="card-body">
+                        <h2 class="h5">Reset password</h2>
+                        <div th:if="${passwordMessage}" class="alert alert-success" th:text="${passwordMessage}"></div>
+                        <div th:if="${passwordError}" class="alert alert-danger" th:text="${passwordError}"></div>
+                        <form method="post" th:action="@{/recovery/password/request}" class="mb-4">
+                            <label class="form-label" for="reset-username">User ID</label>
+                            <input id="reset-username" class="form-control mb-2" name="username" required maxlength="64">
+                            <button class="btn btn-outline-primary">Send reset code</button>
+                        </form>
+                        <form method="post" th:action="@{/recovery/password/reset}">
+                            <label class="form-label" for="reset-user-confirm">User ID</label>
+                            <input id="reset-user-confirm" class="form-control mb-3" name="username" required maxlength="64">
+                            <label class="form-label" for="reset-code">Email verification code</label>
+                            <input id="reset-code" class="form-control mb-2" name="otp" inputmode="numeric" autocomplete="one-time-code" required>
+                            <label class="form-label" for="reset-new">New password (at least 12 characters)</label>
+                            <input id="reset-new" class="form-control mb-2" type="password" name="newPassword" minlength="12" autocomplete="new-password" required>
+                            <label class="form-label" for="reset-confirm">Confirm new password</label>
+                            <input id="reset-confirm" class="form-control mb-3" type="password" name="confirmPassword" minlength="12" autocomplete="new-password" required>
+                            <button class="btn btn-primary">Reset password</button>
+                        </form>
+                    </div></div>
+                </section>
+                <section class="col-md-6">
+                    <div class="card shadow-sm h-100"><div class="card-body">
+                        <h2 class="h5">Recover user ID</h2>
+                        <div th:if="${userIdMessage}" class="alert alert-success" th:text="${userIdMessage}"></div>
+                        <div th:if="${userIdError}" class="alert alert-danger" th:text="${userIdError}"></div>
+                        <div th:if="${recoveredUsername}" class="alert alert-success">
+                            Your user ID is <strong th:text="${recoveredUsername}"></strong>.
+                        </div>
+                        <form method="post" th:action="@{/recovery/user-id/request}" class="mb-4">
+                            <label class="form-label" for="recovery-email">Account email</label>
+                            <input id="recovery-email" class="form-control mb-2" type="email" name="email" required maxlength="320">
+                            <button class="btn btn-outline-primary">Send recovery code</button>
+                        </form>
+                        <form method="post" th:action="@{/recovery/user-id/verify}">
+                            <label class="form-label" for="verify-email">Account email</label>
+                            <input id="verify-email" class="form-control mb-2" type="email" name="email" required maxlength="320">
+                            <label class="form-label" for="verify-code">Email verification code</label>
+                            <input id="verify-code" class="form-control mb-3" name="otp" inputmode="numeric" autocomplete="one-time-code" required>
+                            <button class="btn btn-primary">Verify and show user ID</button>
+                        </form>
+                    </div></div>
+                </section>
+            </div>
+            <p class="text-center text-muted small mt-4">Verification codes expire after five minutes. If email delivery is unavailable, contact your Academic Office.</p>
+        </div>
+    </div>
+</main>
+</body>
+</html>

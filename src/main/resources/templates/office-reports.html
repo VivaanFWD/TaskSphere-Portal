@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic reports | TaskSphere</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" th:href="@{/dashboard}">TaskSphere</a>
+        <form method="post" th:action="@{/logout}" class="ms-auto"><button class="btn btn-outline-light btn-sm">Logout</button></form>
+    </div>
+</nav>
+<main class="container py-4">
+    <a th:href="@{/dashboard}" class="btn btn-link px-0">&larr; Academic Office</a>
+    <h1 class="h3">Academic operations report</h1>
+    <p class="text-muted">Live counts from the portal database; no sample data is included.</p>
+    <div class="row g-3 my-2">
+        <div class="col-6 col-lg-2"><div class="card"><div class="card-body"><span class="text-muted">Active students</span><div class="h3" th:text="${report.activeStudents}">0</div></div></div></div>
+        <div class="col-6 col-lg-2"><div class="card"><div class="card-body"><span class="text-muted">Active faculty</span><div class="h3" th:text="${report.activeFaculty}">0</div></div></div></div>
+        <div class="col-6 col-lg-2"><div class="card"><div class="card-body"><span class="text-muted">Courses</span><div class="h3" th:text="${report.courses}">0</div></div></div></div>
+        <div class="col-6 col-lg-2"><div class="card"><div class="card-body"><span class="text-muted">Enrolments</span><div class="h3" th:text="${report.enrollments}">0</div></div></div></div>
+        <div class="col-6 col-lg-2"><div class="card"><div class="card-body"><span class="text-muted">Assignments</span><div class="h3" th:text="${report.assignments}">0</div></div></div></div>
+        <div class="col-6 col-lg-2"><div class="card"><div class="card-body"><span class="text-muted">Ungraded</span><div class="h3" th:text="${report.pendingSubmissions}">0</div></div></div></div>
+    </div>
+    <h2 class="h4 mt-4">Course activity</h2>
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead><tr><th>Course</th><th>Term</th><th>Faculty</th><th>Enrolled</th><th>Assignments</th><th>Submissions</th><th>Ungraded</th></tr></thead>
+            <tbody><tr th:each="course : ${report.courseReports}">
+                <td><a th:href="@{/courses/{id}(id=${course.id})}" th:text="${course.code + ' — ' + course.title}"></a></td>
+                <td th:text="${course.term}"></td><td th:text="${course.facultyUsername}"></td>
+                <td th:text="${course.enrollmentCount}"></td><td th:text="${course.assignmentCount}"></td>
+                <td th:text="${course.submissionCount}"></td><td th:text="${course.pendingCount}"></td>
+            </tr></tbody>
+        </table>
+    </div>
+    <h2 class="h4 mt-4">Recent audited activity</h2>
+    <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+            <thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Record</th><th>Details</th></tr></thead>
+            <tbody><tr th:each="event : ${report.recentActivity}">
+                <td th:text="${#temporals.format(event.createdAt, 'dd MMM yyyy HH:mm')}"></td>
+                <td th:text="${event.actorUsername}"></td><td th:text="${event.action}"></td>
+                <td th:text="${event.entityType + ' ' + event.entityId}"></td><td th:text="${event.details}"></td>
+            </tr></tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

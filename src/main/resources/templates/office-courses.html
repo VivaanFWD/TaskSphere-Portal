@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage courses | TaskSphere</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" th:href="@{/dashboard}">TaskSphere</a>
+        <form method="post" th:action="@{/logout}" class="ms-auto"><button class="btn btn-outline-light btn-sm">Logout</button></form>
+    </div>
+</nav>
+<main class="container py-4">
+    <a th:href="@{/dashboard}" class="btn btn-link px-0">&larr; Academic Office</a>
+    <h1 class="h3">Course and enrolment administration</h1>
+    <div th:if="${message}" class="alert" th:classappend="${failure} ? 'alert-danger' : 'alert-success'" th:text="${message}"></div>
+    <section class="card shadow-sm my-4">
+        <div class="card-body">
+            <h2 class="h5">Create course</h2>
+            <form method="post" th:action="@{/office/courses}" class="row g-3">
+                <div class="col-md-3"><label class="form-label">Course code</label><input class="form-control" name="code" maxlength="32" required></div>
+                <div class="col-md-5"><label class="form-label">Course title</label><input class="form-control" name="title" maxlength="160" required></div>
+                <div class="col-md-4"><label class="form-label">Term / semester</label><input class="form-control" name="term" maxlength="80" placeholder="2026 Fall" required></div>
+                <div class="col-md-6"><label class="form-label">Assigned faculty</label>
+                    <select class="form-select" name="facultyUsername" required>
+                        <option value="">Select faculty</option>
+                        <option th:each="person : ${faculty}" th:value="${person.username}" th:text="${person.firstName + ' ' + person.lastName + ' (' + person.username + ')'}"></option>
+                    </select>
+                </div>
+                <div class="col-md-6"><label class="form-label">Description</label><input class="form-control" name="description" maxlength="4000"></div>
+                <div class="col-12"><button class="btn btn-primary">Create course</button></div>
+            </form>
+        </div>
+    </section>
+    <h2 class="h4">Courses</h2>
+    <div th:if="${#lists.isEmpty(courses)}" class="alert alert-info">No courses created yet.</div>
+    <article class="card shadow-sm mb-3" th:each="course : ${courses}">
+        <div class="card-body">
+            <div class="d-flex justify-content-between flex-wrap gap-2">
+                <div><span class="badge text-bg-primary" th:text="${course.code}"></span>
+                    <strong class="ms-2" th:text="${course.title}"></strong>
+                    <span class="text-muted ms-2" th:text="${course.term}"></span>
+                    <div class="small text-muted mt-1" th:text="${'Faculty: ' + course.facultyName + ' (' + course.facultyUsername + ') — ' + course.enrollmentCount + ' enrolled'}"></div>
+                </div>
+                <a class="btn btn-outline-secondary btn-sm" th:href="@{/courses/{id}(id=${course.id})}">Course workspace</a>
+            </div>
+            <details class="mt-3">
+                <summary class="small">Edit course details</summary>
+                <form method="post" th:action="@{/office/courses/{id}(id=${course.id})}" class="row g-2 mt-1">
+                    <div class="col-md-2"><label class="form-label">Code</label><input class="form-control" name="code" maxlength="32" th:value="${course.code}" required></div>
+                    <div class="col-md-4"><label class="form-label">Title</label><input class="form-control" name="title" maxlength="160" th:value="${course.title}" required></div>
+                    <div class="col-md-2"><label class="form-label">Term</label><input class="form-control" name="term" maxlength="80" th:value="${course.term}" required></div>
+                    <div class="col-md-4"><label class="form-label">Faculty</label>
+                        <select class="form-select" name="facultyUsername" required>
+                            <option th:each="person : ${faculty}" th:value="${person.username}"
+                                    th:selected="${person.username == course.facultyUsername}"
+                                    th:text="${person.firstName + ' ' + person.lastName + ' (' + person.username + ')'}"></option>
+                        </select>
+                    </div>
+                    <div class="col-12"><label class="form-label">Description</label><input class="form-control" name="description" maxlength="4000" th:value="${course.description}"></div>
+                    <div class="col-12"><button class="btn btn-outline-primary btn-sm">Save changes</button></div>
+                </form>
+            </details>
+            <form method="post" th:action="@{/office/courses/{id}/enroll(id=${course.id})}" class="row g-2 align-items-end mt-2">
+                <div class="col-md-8"><label class="form-label">Enroll student</label>
+                    <select class="form-select" name="studentUsername" required>
+                        <option value="">Select student</option>
+                        <option th:each="person : ${students}" th:value="${person.username}" th:text="${person.firstName + ' ' + person.lastName + ' (' + person.username + ')'}"></option>
+                    </select>
+                </div>
+                <div class="col-md-4"><button class="btn btn-outline-primary">Enroll</button></div>
+            </form>
+        </div>
+    </article>
+</main>
+</body>
+</html>

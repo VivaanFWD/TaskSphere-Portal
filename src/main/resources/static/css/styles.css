@@ -1,0 +1,264 @@
+body {
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #f6f7fb;
+    color: #1f2333;
+}
+
+.landing-bg {
+    background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
+}
+
+.auth-bg {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.brand-mark {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #2563eb, #0ea5e9);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin: 0 auto;
+}
+
+.feature-card {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    color: white;
+    box-shadow: 0 0.8rem 1.5rem rgba(15, 23, 42, 0.2);
+}
+
+.stat-box {
+    background: #eef4ff;
+    border-radius: 0.8rem;
+    padding: 1rem;
+    min-height: 100px;
+}
+
+.stat-box span {
+    display: block;
+    color: #475569;
+    font-size: 0.8rem;
+}
+
+.stat-box strong {
+    display: block;
+    font-size: 2rem;
+    margin-top: 0.5rem;
+}
+
+:root {
+    --ts-primary: #4f46e5;
+    --ts-primary-dark: #3730a3;
+    --ts-accent: #06b6d4;
+    --ts-border: #e5e7eb;
+    --ts-text-soft: #6b7280;
+    --ts-radius: 14px;
+}
+
+a {
+    text-decoration: none;
+}
+
+.ts-navbar {
+    background: linear-gradient(90deg, var(--ts-primary), var(--ts-primary-dark));
+    box-shadow: 0 2px 10px rgba(79, 70, 229, .25);
+}
+
+.ts-navbar .navbar-brand {
+    font-size: 1.3rem;
+    letter-spacing: .3px;
+}
+
+.btn-ts-primary {
+    background: linear-gradient(90deg, var(--ts-primary), var(--ts-primary-dark));
+    border: 0;
+    color: #fff;
+    font-weight: 600;
+}
+
+.btn-ts-primary:hover,
+.btn-ts-primary:focus {
+    background: var(--ts-primary-dark);
+    color: #fff;
+}
+
+.ts-section {
+    padding: 3rem 0;
+}
+
+.ts-summary-card,
+.ts-chart-card,
+.ts-stat-card {
+    background: #fff;
+    border: 1px solid var(--ts-border);
+    border-radius: var(--ts-radius);
+    padding: 1.25rem;
+    height: 100%;
+}
+
+.ts-summary-card .num {
+    font-size: 1.8rem;
+    font-weight: 800;
+}
+
+.ts-summary-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.2rem;
+    flex: 0 0 auto;
+}
+
+.bg-icon-total { background: linear-gradient(135deg, #4f46e5, #6366f1); }
+.bg-icon-pending { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+.bg-icon-progress { background: linear-gradient(135deg, #06b6d4, #22d3ee); }
+.bg-icon-completed { background: linear-gradient(135deg, #10b981, #34d399); }
+.bg-icon-overdue { background: linear-gradient(135deg, #ef4444, #f87171); }
+
+.ts-task-card {
+    background: #fff;
+    border: 1px solid var(--ts-border);
+    border-left: 5px solid var(--ts-primary);
+    border-radius: 10px;
+    padding: 1rem 1.125rem;
+    margin-bottom: .875rem;
+}
+
+.ts-task-card.priority-HIGH { border-left-color: #ef4444; }
+.ts-task-card.priority-MEDIUM { border-left-color: #f59e0b; }
+.ts-task-card.priority-LOW { border-left-color: #10b981; }
+.ts-task-card.overdue { background: #fff5f5; }
+.badge-priority-HIGH { background: #ef4444; }
+.badge-priority-MEDIUM { background: #f59e0b; }
+.badge-priority-LOW { background: #10b981; }
+.badge-status-PENDING { background: #9ca3af; }
+.badge-status-IN_PROGRESS { background: #06b6d4; }
+.badge-status-COMPLETED { background: #10b981; }
+
+.ts-filter-tabs .nav-link {
+    color: var(--ts-text-soft);
+    font-weight: 600;
+    border-radius: 30px;
+    padding: .375rem 1rem;
+}
+
+.ts-filter-tabs .nav-link.active {
+    background: var(--ts-primary);
+    color: #fff;
+}
+
+.ts-footer {
+    background: #14162b;
+    color: #e5e7eb;
+}
+
+.ts-auth-wrap {
+    min-height: calc(100vh - 140px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1rem;
+    background: radial-gradient(circle at top left, #eef0ff, #f6f7fb 55%);
+}
+
+.ts-auth-card {
+    background: #fff;
+    border: 1px solid var(--ts-border);
+    border-radius: var(--ts-radius);
+    box-shadow: 0 15px 40px rgba(31, 35, 51, .08);
+    padding: 0;
+    width: 100%;
+    max-width: 440px;
+}
+
+.ts-auth-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--ts-primary), var(--ts-accent));
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 1.6rem;
+    margin: 0 auto 1rem;
+}
+
+.ts-hero {
+    background: radial-gradient(circle at top right, #6366f1 0%, #4338ca 45%, #312e81 100%);
+    color: #fff;
+    padding: 5.5rem 0 6rem;
+}
+
+.ts-hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-weight: 800;
+}
+
+.ts-hero p.lead { color: #dfe1ff; }
+
+.ts-hero-badge {
+    display: inline-block;
+    border: 1px solid rgba(255,255,255,.35);
+    border-radius: 30px;
+    background: rgba(255,255,255,.15);
+    padding: .375rem 1rem;
+    margin-bottom: 1rem;
+    font-size: .875rem;
+}
+
+.ts-feature-card {
+    background: #fff;
+    border: 1px solid var(--ts-border);
+    border-radius: var(--ts-radius);
+    padding: 1.5rem;
+    height: 100%;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.ts-feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(79,70,229,.12);
+}
+
+.ts-feature-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--ts-primary), var(--ts-accent));
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+}
+
+.landing-bg {
+    background: #f6f7fb;
+}
+
+.navbar.bg-primary {
+    background: linear-gradient(90deg, var(--ts-primary), var(--ts-primary-dark)) !important;
+}
+
+.btn-primary {
+    background-color: var(--ts-primary);
+    border-color: var(--ts-primary);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--ts-primary-dark);
+    border-color: var(--ts-primary-dark);
+}

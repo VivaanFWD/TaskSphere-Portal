@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provision accounts | TaskSphere</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" th:href="@{/dashboard}">TaskSphere</a>
+        <form method="post" th:action="@{/logout}" class="m-0">
+            <button class="btn btn-outline-light btn-sm" type="submit">Logout</button>
+        </form>
+    </div>
+</nav>
+<main class="container py-4">
+    <a th:href="@{/dashboard}" class="btn btn-link px-0">&larr; Back to Academic Office</a>
+    <h1 class="h3 mb-2">Create an account</h1>
+    <p class="text-muted">The authentication service stores the password hash. The person must change the initial password after signing in.</p>
+    <div th:if="${message}" class="alert" th:classappend="${failure} ? 'alert-danger' : 'alert-success'" th:text="${message}"></div>
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <section class="card shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h2 class="h5">Student</h2>
+                    <form method="post" th:action="@{/office/accounts/student}">
+                        <div class="mb-3"><label class="form-label" for="student-id">User ID</label><input id="student-id" name="username" class="form-control" required minlength="3" maxlength="64"></div>
+                        <div class="row">
+                            <div class="col"><label class="form-label" for="student-first">First name</label><input id="student-first" name="firstName" class="form-control" required></div>
+                            <div class="col"><label class="form-label" for="student-last">Last name</label><input id="student-last" name="lastName" class="form-control" required></div>
+                        </div>
+                        <div class="my-3"><label class="form-label" for="student-email">Email</label><input id="student-email" name="email" type="email" class="form-control" required></div>
+                        <div class="mb-3"><label class="form-label" for="student-password">Initial password</label><input id="student-password" name="initialPassword" type="password" class="form-control" required minlength="8" autocomplete="new-password"></div>
+                        <button class="btn btn-primary" type="submit">Create student</button>
+                    </form>
+                </div>
+            </section>
+        </div>
+        <div class="col-lg-6">
+            <section class="card shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h2 class="h5">Faculty</h2>
+                    <form method="post" th:action="@{/office/accounts/faculty}">
+                        <div class="mb-3"><label class="form-label" for="faculty-id">User ID</label><input id="faculty-id" name="username" class="form-control" required minlength="3" maxlength="64"></div>
+                        <div class="row">
+                            <div class="col"><label class="form-label" for="faculty-first">First name</label><input id="faculty-first" name="firstName" class="form-control" required></div>
+                            <div class="col"><label class="form-label" for="faculty-last">Last name</label><input id="faculty-last" name="lastName" class="form-control" required></div>
+                        </div>
+                        <div class="my-3"><label class="form-label" for="faculty-email">Email</label><input id="faculty-email" name="email" type="email" class="form-control" required></div>
+                        <div class="mb-3"><label class="form-label" for="faculty-password">Initial password</label><input id="faculty-password" name="initialPassword" type="password" class="form-control" required minlength="8" autocomplete="new-password"></div>
+                        <button class="btn btn-primary" type="submit">Create faculty</button>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+<section class="container pb-5">
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm"><div class="card-body">
+                <h2 class="h5">Provisioned students</h2>
+                <p th:if="${#lists.isEmpty(students)}" class="text-muted mb-0">No student profiles have been provisioned.</p>
+                <div th:unless="${#lists.isEmpty(students)}" class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead><tr><th>User ID</th><th>Name</th><th>Email</th><th>Status</th><th>Access</th></tr></thead>
+                        <tbody><tr th:each="profile : ${students}">
+                            <td th:text="${profile.username}"></td>
+                            <td th:text="${profile.firstName + ' ' + profile.lastName}"></td>
+                            <td th:text="${profile.email}"></td>
+                            <td th:text="${profile.accountStatus}"></td>
+                            <td><form method="post" th:action="@{/office/accounts/{username}/status(username=${profile.username})}">
+                                <input type="hidden" name="status" th:value="${profile.accountStatus == 'ACTIVE' ? 'FROZEN' : 'ACTIVE'}">
+                                <button class="btn btn-sm" th:classappend="${profile.accountStatus == 'ACTIVE'} ? 'btn-outline-danger' : 'btn-outline-success'"
+                                        th:text="${profile.accountStatus == 'ACTIVE'} ? 'Freeze' : 'Reactivate'"
+                                        th:disabled="${profile.accountStatus == 'DEACTIVATED'}"></button>
+                            </form></td>
+                        </tr></tbody>
+                    </table>
+                </div>
+            </div></div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow-sm"><div class="card-body">
+                <h2 class="h5">Provisioned faculty</h2>
+                <p th:if="${#lists.isEmpty(faculty)}" class="text-muted mb-0">No faculty profiles have been provisioned.</p>
+                <div th:unless="${#lists.isEmpty(faculty)}" class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead><tr><th>User ID</th><th>Name</th><th>Email</th><th>Status</th><th>Access</th></tr></thead>
+                        <tbody><tr th:each="profile : ${faculty}">
+                            <td th:text="${profile.username}"></td>
+                            <td th:text="${profile.firstName + ' ' + profile.lastName}"></td>
+                            <td th:text="${profile.email}"></td>
+                            <td th:text="${profile.accountStatus}"></td>
+                            <td><form method="post" th:action="@{/office/accounts/{username}/status(username=${profile.username})}">
+                                <input type="hidden" name="status" th:value="${profile.accountStatus == 'ACTIVE' ? 'FROZEN' : 'ACTIVE'}">
+                                <button class="btn btn-sm" th:classappend="${profile.accountStatus == 'ACTIVE'} ? 'btn-outline-danger' : 'btn-outline-success'"
+                                        th:text="${profile.accountStatus == 'ACTIVE'} ? 'Freeze' : 'Reactivate'"
+                                        th:disabled="${profile.accountStatus == 'DEACTIVATED'}"></button>
+                            </form></td>
+                        </tr></tbody>
+                    </table>
+                </div>
+            </div></div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

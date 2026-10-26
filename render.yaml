@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: tasksphere-app
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: PORT
+        value: "8080"
+      - key: AUTH_SERVICE_BASE_URL
+        value: https://auth-service-pf5k.onrender.com
+      - key: AUTH_CLIENT_ID
+        value: tasksphere-app
+      - key: AUTH_CLIENT_SECRET
+        value: TS_CLIENT_4nH8kP2xV6mQ9wR3zA7cD1fG5jL0sB_EuYtWpXqMzK8rN6vC4aF
+      - key: AUTH_ADMIN_API_KEY
+        value: TMSDL_MZ-hAh1b9aBSQfQvzosrDMUdhLUOh2o1zUCm5LzlnOTqGQK7ku8A_1gYPi
+      - key: APP_DB_URL
+        value: jdbc:postgresql://ep-royal-rain-b5u9jryu-pooler.c-7.us-east-2.aws.neon.tech/tasksphere_db?sslmode=require&channel_binding=require
+      - key: APP_DB_USERNAME
+        value: neondb_owner
+      - key: APP_DB_PASSWORD
+        value: npg_SH8qv3kpcdZr
+      - key: APP_DB_DRIVER
+        value: org.postgresql.Driver
+      - key: SESSION_COOKIE_SECURE
+        value: "true"
+      - key: UPLOAD_DIR
+        value: /app/uploads

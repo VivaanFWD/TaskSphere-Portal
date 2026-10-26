@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${page.course.code + ' | TaskSphere'}">Course | TaskSphere</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" th:href="@{/dashboard}">TaskSphere</a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="text-white" th:text="${user.username}">User</span>
+            <form method="post" th:action="@{/logout}" class="m-0"><button class="btn btn-outline-light btn-sm">Logout</button></form>
+        </div>
+    </div>
+</nav>
+<main class="container py-4">
+    <div th:if="${message}" class="alert" th:classappend="${failure} ? 'alert-danger' : 'alert-success'" th:text="${message}"></div>
+    <a th:href="@{/courses}" class="btn btn-link px-0">&larr; All courses</a>
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+        <div>
+            <span class="badge text-bg-primary" th:text="${page.course.code}">COURSE</span>
+            <h1 class="h3 mt-2" th:text="${page.course.title}">Course</h1>
+            <p class="text-muted" th:text="${page.course.description}"></p>
+            <p><strong>Term:</strong> <span th:text="${page.course.term}"></span>
+                <span class="ms-3"><strong>Faculty:</strong> <span th:text="${page.course.facultyName}"></span></span></p>
+        </div>
+        <div class="text-end"><span class="badge text-bg-secondary" th:text="${page.course.enrollmentCount + ' enrolled'}">0 enrolled</span></div>
+    </div>
+
+    <section class="card shadow-sm my-4" th:if="${page.faculty}">
+        <div class="card-body">
+            <h2 class="h5">Create assignment</h2>
+            <p class="small text-muted">Course term: <span th:text="${page.course.term}"></span></p>
+            <form method="post" enctype="multipart/form-data" th:action="@{/courses/{id}/assignments(id=${page.course.id})}" class="row g-3">
+                <div class="col-md-4"><label class="form-label">Title</label><input class="form-control" name="title" maxlength="160" required></div>
+                <div class="col-md-4"><label class="form-label">Due date and time</label><input class="form-control" type="datetime-local" name="dueAt" required></div>
+                <div class="col-md-4"><label class="form-label">Maximum points</label><input class="form-control" type="number" name="maxPoints" min="0.01" max="100000" step="0.01" required></div>
+                <div class="col-12"><label class="form-label">Instructions</label><textarea class="form-control" name="description" rows="2" maxlength="4000" required></textarea></div>
+                <div class="col-md-8"><label class="form-label">Question paper (optional PDF, maximum 20 MB)</label><input class="form-control" type="file" name="questionPaper" accept=".pdf,application/pdf"></div>
+                <div class="col-12"><button class="btn btn-primary">Publish assignment</button></div>
+            </form>
+        </div>
+    </section>
+
+    <section class="mb-4">
+        <h2 class="h4">Assignments</h2>
+        <div th:if="${#lists.isEmpty(page.assignments)}" class="alert alert-light border">No assignments have been published.</div>
+        <article class="card shadow-sm mb-3" th:each="assignment : ${page.assignments}">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between gap-2">
+                    <h3 class="h5" th:text="${assignment.title}">Assignment</h3>
+                    <span class="badge text-bg-light" th:text="${'Due ' + #temporals.format(assignment.dueAt, 'dd MMM yyyy HH:mm')}"></span>
+                </div>
+                <p class="text-muted" th:text="${assignment.description}"></p>
+                <p><strong>Points:</strong> <span th:text="${assignment.maxPoints}"></span></p>
+                <p th:if="${assignment.questionPaperName}" class="small">
+                    Question paper:
+                    <a th:href="@{/assignments/{id}/question-paper(id=${assignment.id})}"
+                       th:text="${assignment.questionPaperName}">Download question paper</a>
+                </p>
+                <details th:if="${page.faculty}" class="border rounded p-3 mb-3">
+                    <summary class="fw-semibold">Edit assignment</summary>
+                    <form method="post" enctype="multipart/form-data"
+                          th:action="@{/assignments/{id}/edit(id=${assignment.id})}" class="row g-3 mt-1">
+                        <input type="hidden" name="courseId" th:value="${page.course.id}">
+                        <div class="col-md-4"><label class="form-label">Title</label><input class="form-control" name="title" maxlength="160" required th:value="${assignment.title}"></div>
+                        <div class="col-md-4"><label class="form-label">Due date and time</label><input class="form-control" type="datetime-local" name="dueAt" required th:value="${assignment.dueAtInput}"></div>
+                        <div class="col-md-4"><label class="form-label">Maximum points</label><input class="form-control" type="number" name="maxPoints" min="0.01" max="100000" step="0.01" required th:value="${assignment.maxPoints}"></div>
+                        <div class="col-12"><label class="form-label">Instructions</label><textarea class="form-control" name="description" rows="2" maxlength="4000" required th:text="${assignment.description}"></textarea></div>
+                        <div class="col-md-8"><label class="form-label">Replace question paper (optional PDF)</label><input class="form-control" type="file" name="questionPaper" accept=".pdf,application/pdf"></div>
+                        <div class="col-12"><button class="btn btn-outline-primary btn-sm">Save changes</button></div>
+                    </form>
+                    <form method="post" th:action="@{/assignments/{id}/delete(id=${assignment.id})}" class="mt-2"
+                          onsubmit="return confirm('Delete this assignment?')">
+                        <input type="hidden" name="courseId" th:value="${page.course.id}">
+                        <button class="btn btn-outline-danger btn-sm">Delete assignment</button>
+                    </form>
+                    <p class="small text-muted mt-2 mb-0">Assignments with student submissions are locked to preserve submitted work.</p>
+                </details>
+                <div th:if="${page.student}">
+                    <div th:if="${assignment.grade != null}" class="alert alert-success">
+                        Graded: <strong th:text="${assignment.grade + ' / ' + assignment.maxPoints}"></strong>
+                        <span th:if="${assignment.feedback}" th:text="${' — ' + assignment.feedback}"></span>
+                    </div>
+                    <div th:if="${assignment.submitted and assignment.grade == null}" class="alert alert-info">
+                        Submitted <span th:text="${#temporals.format(assignment.submittedAt, 'dd MMM yyyy HH:mm')}"></span>.
+                        You may update your work before the deadline.
+                    </div>
+                    <p th:if="${assignment.attachmentName}" class="small">
+                        Attached file:
+                        <a th:href="@{/submissions/{id}/attachment(id=${assignment.submissionId})}"
+                           th:text="${assignment.attachmentName}">Download submission attachment</a>
+                        <a th:if="${#strings.toLowerCase(assignment.attachmentName).endsWith('.pdf')}"
+                           class="ms-2" target="_blank" rel="noopener"
+                           th:href="@{/submissions/{id}/preview(id=${assignment.submissionId})}">Preview PDF</a>
+                    </p>
+                    <form method="post" enctype="multipart/form-data" th:action="@{/assignments/{id}/submit(id=${assignment.id})}">
+                        <input type="hidden" name="courseId" th:value="${page.course.id}">
+                        <label class="form-label">Your written response (optional when attaching a file)</label>
+                        <textarea class="form-control mb-2" name="body" rows="4" maxlength="12000" th:text="${assignment.submissionBody}"></textarea>
+                        <label class="form-label">Attachment (optional, maximum 20 MB)</label>
+                        <input class="form-control mb-2" type="file" name="attachment"
+                               accept=".csv,.doc,.docx,.jpg,.jpeg,.odt,.pdf,.png,.txt,.xlsx">
+                        <button class="btn btn-primary btn-sm" th:disabled="${assignment.grade != null}">Save submission</button>
+                    </form>
+                </div>
+            </div>
+        </article>
+    </section>
+
+    <section class="card shadow-sm mb-4" th:if="${page.faculty}">
+        <div class="card-body">
+            <h2 class="h4">Student submissions</h2>
+            <p th:if="${#lists.isEmpty(page.submissions)}" class="text-muted mb-0">No submissions received.</p>
+            <div class="table-responsive" th:unless="${#lists.isEmpty(page.submissions)}">
+                <table class="table align-middle">
+                    <thead><tr><th>Assignment</th><th>Student</th><th>Submission</th><th>Grade</th><th>Review</th></tr></thead>
+                    <tbody><tr th:each="submission : ${page.submissions}">
+                        <td th:text="${submission.assignmentTitle}"></td>
+                        <td><span th:text="${submission.studentName}"></span><br><small th:text="${submission.studentUsername}"></small></td>
+                        <td class="text-break" style="max-width: 24rem">
+                            <span th:text="${submission.body}"></span>
+                            <div th:if="${submission.attachmentName}" class="small mt-1">
+                                <a th:href="@{/submissions/{id}/attachment(id=${submission.id})}"
+                                   th:text="${submission.attachmentName}">Download attachment</a>
+                                <a th:if="${#strings.toLowerCase(submission.attachmentName).endsWith('.pdf')}"
+                                   class="ms-2" target="_blank" rel="noopener"
+                                   th:href="@{/submissions/{id}/preview(id=${submission.id})}">Preview PDF</a>
+                            </div>
+                        </td>
+                        <td th:text="${submission.grade == null ? 'Pending' : submission.grade + ' / ' + submission.maxPoints}"></td>
+                        <td>
+                            <form method="post" th:action="@{/submissions/{id}/grade(id=${submission.id})}" class="d-grid gap-1">
+                                <input type="hidden" name="courseId" th:value="${page.course.id}">
+                                <input class="form-control form-control-sm" type="number" name="grade" min="0" th:max="${submission.maxPoints}" step="0.01" required th:value="${submission.grade}">
+                                <input class="form-control form-control-sm" name="feedback" maxlength="4000" placeholder="Feedback" th:value="${submission.feedback}">
+                                <button class="btn btn-outline-primary btn-sm">Save grade</button>
+                            </form>
+                        </td>
+                    </tr></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section class="card shadow-sm mb-4" th:if="${!#lists.isEmpty(page.enrolledStudents)}">
+        <div class="card-body">
+            <h2 class="h4">Enrolled students</h2>
+            <div class="list-group list-group-flush">
+                <div class="list-group-item d-flex justify-content-between align-items-center gap-2"
+                     th:each="student : ${page.enrolledStudents}">
+                    <span th:text="${student.firstName + ' ' + student.lastName + ' (' + student.username + ')'}"></span>
+                    <form th:if="${page.office}" method="post"
+                          th:action="@{/office/courses/{id}/unenroll(id=${page.course.id})}">
+                        <input type="hidden" name="studentUsername" th:value="${student.username}">
+                        <button class="btn btn-outline-danger btn-sm">Remove enrolment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="card shadow-sm">
+        <div class="card-body">
+            <h2 class="h4">Course messages</h2>
+            <form method="post" th:action="@{/courses/{id}/messages(id=${page.course.id})}" class="mb-4">
+                <label class="form-label" for="message-audience">Send to</label>
+                <select th:if="${page.faculty or page.student}" id="message-audience" name="audience"
+                        class="form-select mb-2" required>
+                    <option value="INDIVIDUAL" selected>One person (private)</option>
+                    <option value="ALL" th:text="${page.faculty ? 'All students in this course' : 'Everyone in this course'}"></option>
+                </select>
+                <input th:if="${page.office and !page.faculty and !page.student}"
+                       type="hidden" name="audience" value="ALL">
+                <div class="mb-2" id="message-recipient-field"
+                     th:if="${page.faculty or page.student}">
+                    <label class="form-label" for="message-recipient">Individual recipient</label>
+                    <select id="message-recipient" name="recipientUsername" class="form-select">
+                        <option th:if="${page.student}" th:value="${page.course.facultyUsername}"
+                                th:text="${page.course.facultyName + ' (' + page.course.facultyUsername + ')'}"></option>
+                        <option th:if="${page.faculty}" th:each="student : ${page.enrolledStudents}"
+                                th:value="${student.username}"
+                                th:text="${student.firstName + ' ' + student.lastName + ' (' + student.username + ')'}"></option>
+                    </select>
+                </div>
+                <label class="form-label" for="message-body">Message</label>
+                <textarea id="message-body" class="form-control mb-2" name="body" rows="3" maxlength="5000" required></textarea>
+                <button class="btn btn-primary btn-sm">Send message</button>
+            </form>
+            <p th:if="${#lists.isEmpty(page.messages)}" class="text-muted">No messages have been posted.</p>
+            <article class="border-top py-3" th:each="message : ${page.messages}">
+                <div class="d-flex justify-content-between flex-wrap gap-2">
+                    <div>
+                        <strong th:text="${message.authorName}"></strong>
+                        <small class="text-muted" th:text="${'(' + message.authorUsername + ')'}"></small>
+                        <span th:if="${message.audience == 'INDIVIDUAL'}" class="badge text-bg-warning"
+                              th:text="${'Private · to ' + message.recipientUsername}"></span>
+                        <span th:if="${message.audience == 'ALL'}" class="badge text-bg-light">Course-wide</span>
+                    </div>
+                    <small class="text-muted" th:text="${#temporals.format(message.createdAt, 'dd MMM yyyy HH:mm')}"></small>
+                </div>
+                <p class="mb-0 text-break" th:text="${message.body}"></p>
+            </article>
+        </div>
+    </section>
+</main>
+<script>
+    const audience = document.getElementById("message-audience");
+    const recipientField = document.getElementById("message-recipient-field");
+    const recipient = document.getElementById("message-recipient");
+    if (audience && recipientField && recipient) {
+        const updateRecipientVisibility = () => {
+            const individual = audience.value === "INDIVIDUAL";
+            recipientField.hidden = !individual;
+            recipient.required = individual;
+            recipient.disabled = !individual;
+        };
+        audience.addEventListener("change", updateRecipientVisibility);
+        updateRecipientVisibility();
+    }
+</script>
+</body>
+</html>

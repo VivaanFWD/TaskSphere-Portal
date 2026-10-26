@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard | TaskSphere</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div th:replace="~{fragments/workspace-header :: header}"></div>
+<main class="ts-section pt-4">
+    <div class="container">
+        <div class="alert alert-success alert-dismissible alert-auto-dismiss" role="alert" th:if="${success}">
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div class="alert alert-danger alert-dismissible" role="alert" th:if="${error}">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+            <div>
+                <h1 class="h3 fw-bold mb-1">Welcome, <span th:text="${user}">Faculty</span> 👋</h1>
+                <p class="text-muted mb-0">Assign tasks to your students and track their progress.</p>
+            </div>
+            <button type="button" class="btn btn-ts-primary px-4" data-bs-toggle="modal" data-bs-target="#assignTaskModal"
+                    th:disabled="${#lists.isEmpty(students)}">
+                <i class="bi bi-send-plus me-1"></i>Assign Task
+            </button>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md">
+                <div class="ts-summary-card d-flex align-items-center gap-3">
+                    <div class="ts-summary-icon bg-icon-total"><i class="bi bi-collection"></i></div>
+                    <div><div class="num" th:text="${summary.total}">0</div><div class="small text-muted">Assigned</div></div>
+                </div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="ts-summary-card d-flex align-items-center gap-3">
+                    <div class="ts-summary-icon bg-icon-pending"><i class="bi bi-hourglass-split"></i></div>
+                    <div><div class="num" th:text="${summary.pending}">0</div><div class="small text-muted">Pending</div></div>
+                </div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="ts-summary-card d-flex align-items-center gap-3">
+                    <div class="ts-summary-icon bg-icon-progress"><i class="bi bi-arrow-repeat"></i></div>
+                    <div><div class="num" th:text="${summary.inProgress}">0</div><div class="small text-muted">In Progress</div></div>
+                </div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="ts-summary-card d-flex align-items-center gap-3">
+                    <div class="ts-summary-icon bg-icon-completed"><i class="bi bi-check2-circle"></i></div>
+                    <div><div class="num" th:text="${summary.completed}">0</div><div class="small text-muted">Completed</div></div>
+                </div>
+            </div>
+            <div class="col-6 col-md">
+                <div class="ts-summary-card d-flex align-items-center gap-3">
+                    <div class="ts-summary-icon bg-icon-overdue"><i class="bi bi-exclamation-triangle"></i></div>
+                    <div><div class="num" th:text="${summary.overdue}">0</div><div class="small text-muted">Overdue</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(students)}" class="alert alert-warning">
+            <i class="bi bi-info-circle me-1"></i>No active student accounts are available yet. Contact Academic Office to provision students.
+        </div>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+            <div class="d-flex align-items-center gap-2"><i class="bi bi-person-workspace text-primary"></i><h2 class="h5 fw-bold mb-0">Tasks You've Assigned</h2></div>
+            <a class="btn btn-sm btn-outline-primary" th:href="@{/task-analytics}"><i class="bi bi-graph-up me-1"></i>Analytics</a>
+        </div>
+        <div th:if="${#lists.isEmpty(assignedTasks)}" class="text-center text-muted py-5">
+            <i class="bi bi-inbox fs-2"></i><p class="mt-2 mb-0">You haven't assigned any tasks yet.</p>
+        </div>
+        <article th:each="task : ${assignedTasks}"
+                 th:class="'ts-task-card priority-' + ${task.priority} + (${task.overdue} ? ' overdue' : '')">
+            <div class="d-flex justify-content-between flex-wrap gap-3">
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+                        <h3 class="h6 fw-bold mb-0" th:text="${task.title}">Task title</h3>
+                        <span class="badge text-uppercase" th:classappend="'badge-priority-' + ${task.priority}" th:text="${task.priority}">HIGH</span>
+                        <span class="badge text-uppercase" th:classappend="'badge-status-' + ${task.status}" th:text="${task.status}">PENDING</span>
+                        <span class="badge bg-danger" th:if="${task.overdue}"><i class="bi bi-exclamation-triangle me-1"></i>Overdue</span>
+                        <span class="badge bg-success" th:if="${task.submitted}"><i class="bi bi-check2 me-1"></i>Submitted</span>
+                    </div>
+                    <p class="text-muted small mb-2" th:if="${task.description}" th:text="${task.description}"></p>
+                    <div class="d-flex flex-wrap gap-3 small text-muted">
+                        <span><i class="bi bi-person me-1"></i>Assigned to <strong th:text="${task.student.firstName + ' ' + task.student.lastName}">Student</strong></span>
+                        <span><i class="bi bi-tag me-1"></i><span th:text="${task.category}"></span></span>
+                        <span th:if="${task.dueDate}"><i class="bi bi-calendar-event me-1"></i>Due <span th:text="${#temporals.format(task.dueDate, 'dd MMM yyyy')}"></span></span>
+                    </div>
+                    <div class="small mt-2 p-2 rounded bg-light" th:if="${task.submitted}">
+                        <strong class="d-block mb-1"><i class="bi bi-paperclip me-1"></i>Student submission</strong>
+                        <span th:text="${task.submissionNote} ?: 'Submitted without a note.'"></span>
+                        <div class="text-muted mt-1 small" th:if="${task.submittedAt}">
+                            Submitted <span th:text="${#temporals.format(task.submittedAt, 'dd MMM yyyy, hh:mm a')}"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-start gap-2">
+                    <form th:if="${!task.submitted}" th:action="@{/tasks/status/{id}(id=${task.id})}" method="post">
+                        <select name="status" class="form-select form-select-sm" aria-label="Update task status" onchange="this.form.submit()">
+                            <option th:each="status : ${statuses}" th:value="${status}" th:text="${status}" th:selected="${status == task.status}"></option>
+                        </select>
+                    </form>
+                    <button th:if="${!task.submitted}" type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editAssignedTaskModal"
+                            th:attr="data-task-id=${task.id},data-title=${task.title},data-description=${task.description},data-category=${task.category},data-priority=${task.priority},data-due-date=${task.dueDate}">
+                        <i class="bi bi-pencil"></i><span class="visually-hidden">Edit task</span>
+                    </button>
+                    <form th:action="@{/tasks/delete/{id}(id=${task.id})}" method="post" onsubmit="return confirm('Delete this assignment? This cannot be undone.');">
+                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i><span class="visually-hidden">Delete assignment</span></button>
+                    </form>
+                </div>
+            </div>
+        </article>
+        <a class="btn btn-outline-primary btn-sm mt-2" th:href="@{/courses}"><i class="bi bi-journal-bookmark me-1"></i>My courses and course assignments</a>
+    </div>
+</main>
+<div th:replace="~{fragments/workspace-footer :: footer}"></div>
+
+<div class="modal fade" id="assignTaskModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form th:action="@{/tasks/assign}" method="post">
+                <div class="modal-header"><h2 class="modal-title h5 fw-bold">Assign a task</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+                <div class="modal-body">
+                    <div class="mb-3"><label class="form-label" for="assignStudent">Assign to</label>
+                        <select id="assignStudent" name="studentId" class="form-select" required>
+                            <option value="" disabled selected>Choose an active student</option>
+                            <option th:each="student : ${students}" th:value="${student.id}" th:text="${student.firstName + ' ' + student.lastName + ' (' + student.username + ')'}"></option>
+                        </select>
+                    </div>
+                    <div class="mb-3"><label class="form-label" for="assignTitle">Title</label><input id="assignTitle" name="title" class="form-control" maxlength="150" required></div>
+                    <div class="mb-3"><label class="form-label" for="assignDescription">Description</label><textarea id="assignDescription" name="description" class="form-control" rows="2" maxlength="1000"></textarea></div>
+                    <div class="row g-3">
+                        <div class="col-6"><label class="form-label" for="assignCategory">Category</label><select id="assignCategory" name="category" class="form-select"><option th:each="category : ${categories}" th:value="${category}" th:text="${category}"></option></select></div>
+                        <div class="col-6"><label class="form-label" for="assignPriority">Priority</label><select id="assignPriority" name="priority" class="form-select"><option th:each="priority : ${priorities}" th:value="${priority}" th:text="${priority}" th:selected="${priority.name() == 'MEDIUM'}"></option></select></div>
+                    </div>
+                    <div class="mt-3"><label class="form-label" for="assignDueDate">Due date</label><input id="assignDueDate" type="date" name="dueDate" class="form-control"></div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-ts-primary">Assign Task</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editAssignedTaskModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="editAssignedTaskForm" method="post">
+                <div class="modal-header"><h2 class="modal-title h5 fw-bold">Edit assigned task</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+                <div class="modal-body">
+                    <div class="mb-3"><label class="form-label" for="facultyEditTitle">Title</label><input id="facultyEditTitle" name="title" class="form-control" maxlength="150" required></div>
+                    <div class="mb-3"><label class="form-label" for="facultyEditDescription">Description</label><textarea id="facultyEditDescription" name="description" class="form-control" rows="2" maxlength="1000"></textarea></div>
+                    <div class="row g-3">
+                        <div class="col-6"><label class="form-label" for="facultyEditCategory">Category</label><select id="facultyEditCategory" name="category" class="form-select"><option th:each="category : ${categories}" th:value="${category}" th:text="${category}"></option></select></div>
+                        <div class="col-6"><label class="form-label" for="facultyEditPriority">Priority</label><select id="facultyEditPriority" name="priority" class="form-select"><option th:each="priority : ${priorities}" th:value="${priority}" th:text="${priority}"></option></select></div>
+                        <div class="col-6"><label class="form-label" for="facultyEditDueDate">Due date</label><input id="facultyEditDueDate" type="date" name="dueDate" class="form-control"></div>
+                    </div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-ts-primary">Save changes</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/workspace.js}"></script>
+</body>
+</html>

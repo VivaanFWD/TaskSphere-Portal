@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courses | TaskSphere</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" th:href="@{/dashboard}">TaskSphere</a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <a class="btn btn-outline-light btn-sm" th:href="@{/faculty}">Faculty information</a>
+            <span class="text-white" th:text="${user.username}">User</span>
+            <form method="post" th:action="@{/logout}" class="m-0"><button class="btn btn-outline-light btn-sm">Logout</button></form>
+        </div>
+    </div>
+</nav>
+<main class="container py-4">
+    <h1 class="h3">My courses</h1>
+    <p class="text-muted">Courses and academic activity available to your account.</p>
+    <form method="get" th:action="@{/courses}" class="row g-2 align-items-end mb-4" th:if="${!#lists.isEmpty(terms)}">
+        <div class="col-sm-6 col-md-4">
+            <label class="form-label" for="term-filter">Select semester / term</label>
+            <select class="form-select" id="term-filter" name="term">
+                <option value="">All terms</option>
+                <option th:each="term : ${terms}" th:value="${term}" th:text="${term}"
+                        th:selected="${term == selectedTerm}"></option>
+            </select>
+        </div>
+        <div class="col-auto"><button class="btn btn-primary">Show courses</button></div>
+    </form>
+    <div th:if="${#lists.isEmpty(courses) and #lists.isEmpty(terms)}" class="alert alert-info">No courses are currently assigned or enrolled.</div>
+    <div th:if="${#lists.isEmpty(courses) and !#lists.isEmpty(terms)}" class="alert alert-info">No courses are available for this term.</div>
+    <div class="row g-3">
+        <div class="col-md-6 col-xl-4" th:each="course : ${courses}">
+            <section class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <span class="badge text-bg-primary" th:text="${course.code}">COURSE</span>
+                    <h2 class="h5 mt-2" th:text="${course.title}">Course title</h2>
+                    <p class="mb-1"><strong>Term:</strong> <span th:text="${course.term}"></span></p>
+                    <p class="mb-1"><strong>Faculty:</strong> <span th:text="${course.facultyName}"></span></p>
+                    <p class="text-muted" th:text="${course.description}"></p>
+                    <a class="btn btn-primary btn-sm" th:href="@{/courses/{id}(id=${course.id})}">Open course</a>
+                </div>
+            </section>
+        </div>
+    </div>
+    <a class="btn btn-link px-0 mt-3" th:href="@{/dashboard}">Back to workspace</a>
+</main>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request could not be completed | TaskSphere</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="auth-bg">
+<main class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+    <section class="card border-0 shadow-lg rounded-4 text-center" style="max-width: 560px;">
+        <div class="card-body p-4 p-md-5">
+            <p class="text-primary fw-semibold text-uppercase mb-2">TaskSphere</p>
+            <div class="display-1 fw-bold text-primary" th:text="${status} ?: '400'">400</div>
+            <h1 class="h3 mt-3">We couldn't complete that request</h1>
+            <p class="text-secondary mt-3 mb-4">Check the page or your account access, then try again.</p>
+            <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+                <a class="btn btn-primary" th:href="@{/}">Go to TaskSphere home</a>
+                <a class="btn btn-outline-secondary" th:href="@{/login}">Sign in</a>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

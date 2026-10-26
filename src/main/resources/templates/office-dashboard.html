@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Office | TaskSphere</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+    <div class="container-fluid">
+        <span class="navbar-brand fw-bold">TaskSphere</span>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <a class="btn btn-outline-light btn-sm" th:href="@{/faculty}">Faculty directory</a>
+            <span class="text-white" th:text="${user.displayName}">Academic Office</span>
+            <form method="post" th:action="@{/logout}" class="m-0"><button class="btn btn-outline-light btn-sm" type="submit">Logout</button></form>
+        </div>
+    </div>
+</nav>
+<div class="container py-4">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Administrative access</h5>
+                    <p class="mb-1"><strong>User ID:</strong> <span th:text="${user.username}">admin</span></p>
+                    <p class="mb-1"><strong>Role:</strong> Academic Office</p>
+                    <p class="mb-0"><strong>Workspace:</strong> Academic Office</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Academic operations</h5>
+                    <p class="text-muted mb-0">Manage identities, courses, student enrolments, and live academic operations.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-4 mt-1">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5>Provisioning actions</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><a th:href="@{/office/accounts}">Create student and faculty accounts</a></li>
+                        <li class="list-group-item"><a th:href="@{/office/courses}">Create courses and manage enrolments</a></li>
+                        <li class="list-group-item"><a th:href="@{/office/reports}">View academic reports and audit activity</a></li>
+                        <li class="list-group-item">Initial passwords are hashed by the identity service</li>
+                        <li class="list-group-item">New accounts require first-login password change</li>
+                        <li class="list-group-item">Account administration requires an Academic Office role</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5>Academic management</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Monitor course enrolments and assessment completion</li>
+                        <li class="list-group-item">Freeze and reactivate student/faculty access</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

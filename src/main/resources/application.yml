@@ -1,0 +1,66 @@
+spring:
+  application:
+    name: tasksphere-app
+  datasource:
+    url: ${APP_DB_URL:jdbc:postgresql://ep-royal-rain-b5u9jryu-pooler.c-7.us-east-2.aws.neon.tech/tasksphere_db?sslmode=require&channel_binding=require}
+    # url: ${APP_DB_URL:jdbc:postgresql://localhost:5432/tasksphere_db}
+    username: ${APP_DB_USERNAME:neondb_owner}
+    # username: ${APP_DB_USERNAME:postgres}
+    password: ${APP_DB_PASSWORD:npg_SH8qv3kpcdZr}
+    # password: ${APP_DB_PASSWORD:Vivaan@2050}
+    driver-class-name: ${APP_DB_DRIVER:org.postgresql.Driver}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        default_schema: public
+    open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    table: flyway_schema_history_app
+    baseline-on-migrate: true
+    baseline-version: 0
+  thymeleaf:
+    cache: false
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 22MB
+  mail:
+    host: localhost
+    port: 1025
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+
+app:
+  auth-service-base-url: ${AUTH_SERVICE_BASE_URL:http://localhost:8081}
+  auth-admin-api-key: ${AUTH_ADMIN_API_KEY:TMSDL_MZ-hAh1b9aBSQfQvzosrDMUdhLUOh2o1zUCm5LzlnOTqGQK7ku8A_1gYPi}
+  # auth-admin-api-key: ${AUTH_ADMIN_API_KEY:}
+  auth-client-id: ${AUTH_CLIENT_ID:tasksphere-app}
+  auth-client-secret: ${AUTH_CLIENT_SECRET:TS_CLIENT_4nH8kP2xV6mQ9wR3zA7cD1fG5jL0sB_EuYtWpXqMzK8rN6vC4aF}
+  # auth-client-secret: ${AUTH_CLIENT_SECRET:local-only-client-secret-change-before-deploying}
+  base-url: ${APP_BASE_URL:http://localhost:8080}
+  upload-dir: ${UPLOAD_DIR:./uploads}
+  timezone: ${APP_TIMEZONE:Asia/Kolkata}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+server:
+  port: ${PORT:${APP_SERVER_PORT:8080}}
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        secure: ${SESSION_COOKIE_SECURE:false}
+        same-site: strict
+
+
+openapi:
+  server-url: http://localhost:8080
